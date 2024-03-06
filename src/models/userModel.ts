@@ -54,6 +54,18 @@ export class Users extends Model {
     allowNull: true,
   })
   city: string | undefined;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  passwordResetToken: string | undefined;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  passwordResetExpires: Date | undefined;
 }
 
 

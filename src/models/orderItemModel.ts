@@ -2,21 +2,20 @@ import { Table, Model, Column, DataType } from "sequelize-typescript";
 
 @Table({
   timestamps: true,
-  tableName: "products",
+  tableName: "order_items",
 })
-export class Products extends Model {
+export class OrderItems extends Model {
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
-    unique: true,
   })
-  name!: string;
+  order!: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  type!: string;
+  amount!: number;
 
   @Column({
     type: DataType.INTEGER,
@@ -28,27 +27,17 @@ export class Products extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  countInStock!: number;
-
-  @Column({
-    type: DataType.DOUBLE,
-    allowNull: false,
-    defaultValue: 5
-  })
-  rating!: number;
+  discount!: number;
 
   @Column({
     type: DataType.STRING,
-    allowNull: true,
+    allowNull: false,
   })
-  description!: string;
+  image!: string;
 
   @Column({
     type: DataType.INTEGER,
-    allowNull: true,
-    defaultValue: 0
+    allowNull: false,
   })
-  selled!: number;
+  product!: number;
 }
-
-

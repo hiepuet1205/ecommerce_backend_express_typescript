@@ -44,6 +44,7 @@ export const verifyAccessToken: RequestHandler = catchAsync(async (req: IGetUser
     id: decoded.id,
     name: user.name,
     email: user.email,
+    password: user.password,
     role: user.role,
     phone: user.phone,
     address: user.address,

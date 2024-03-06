@@ -33,12 +33,6 @@ class APIFeatures<T extends Model<any, any>> {
 
     this.query.where = conditions;
 
-    // // 1B) Advanced filtering
-    // let queryStr = JSON.stringify(queryObj);
-    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
-    // this.query.where = JSON.parse(queryStr);
-
     return this;
   }
 

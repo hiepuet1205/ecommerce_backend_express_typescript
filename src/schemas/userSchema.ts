@@ -19,3 +19,17 @@ export const updateUserSchema = Joi.object({
 export const deleteManyUserSchema = Joi.object({
   ids: Joi.array().items(Joi.number()).required(),
 });
+
+export const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const resetPassword = Joi.object({
+  password: Joi.string().required(),
+});
+
+export const updatePassword = Joi.object({
+  oldPassword: Joi.string().required(),
+  newPassword: Joi.string().required(),
+  passwordConfirm: Joi.string().required(),
+});

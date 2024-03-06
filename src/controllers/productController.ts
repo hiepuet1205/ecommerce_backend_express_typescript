@@ -7,21 +7,29 @@ import AppError from "../ultis/appError";
 import { Products } from "../models/productModel";
 
 import APIFeatures from "../ultis/apiFeatures";
+import { ProductImages } from "../models/productImageModel";
 
-export const createProduct: RequestHandler = catchAsync(async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+export const createProduct: RequestHandler = catchAsync(async (req: any, res: Response, next: NextFunction) => {
   const checkProduct = await Products.findOne({ where: { name: req.body.name } });
 
   if (checkProduct) {
     return next(new AppError('The name of product is already', 401))
   }
 
-  const product = await Products.create(req.body);
-
-  return res
-    .status(200)
-    .json({
-      message: "Product create successfully", data: product
-    });
+  if (req.files) {
+    req.body.image = ""
+    const product = await Products.create(req.body);
+    req.files.forEach(async (file: { location: any; }) => {
+      await ProductImages.create({ product: product.id, image: file.location })
+    })
+    return res
+      .status(200)
+      .json({
+        message: "Product create successfully", data: product
+      });
+  } else {
+    return next(new AppError('Cant upload image!', 400))
+  }
 })
 
 export const updateProduct: RequestHandler = catchAsync(async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
@@ -41,16 +49,18 @@ export const updateProduct: RequestHandler = catchAsync(async (req: IGetUserAuth
 })
 
 export const getProduct: RequestHandler = catchAsync(async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-  const checkProduct = await Products.findOne({ where: { id: req.params.id } });
+  const checkProduct = await Products.findOne({ where: { id: req.params.id }, attributes: { exclude: ['createdAt', 'updatedAt'] } });
 
   if (!checkProduct) {
     return next(new AppError('The product is not defined', 401))
   }
 
+  const productImages = await ProductImages.findAll({ where: { product: req.params.id } });
+
   return res
     .status(200)
     .json({
-      message: "Get product successfully", data: checkProduct
+      message: "Get product successfully", data: { ...checkProduct.get(), images: productImages.map(i => i.image) }
     });
 })
 
@@ -59,32 +69,38 @@ export const getAllProducts: RequestHandler = catchAsync(async (req: IGetUserAut
 
   const products = await apiFeatures.filter().sort().paginate().limitFields().exec();
 
+  const productDatas = await Promise.all(products.map(async product => {
+    const productImages = await ProductImages.findAll({ where: { product: product.id } });
+
+    return {
+      ...product.get(),
+      images: productImages.map(i => i.image)
+    }
+  }))
+
   return res
     .status(200)
     .json({
-      message: "Get all product successfully", data: products
+      message: "Get all product successfully", data: productDatas
     });
 })
-
-export const getAllType: RequestHandler = catchAsync(async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-  const result = await Products.sequelize?.query('select distinct type from products;');
-
-  const types = result && result.length > 0 ? result[0] : [];
-
-  return res
-    .status(200)
-    .json({
-      message: "Get all type product successfully", data: types.map((type: any) => { return type.type })
-    });
-});
 
 export const getProductOfType: RequestHandler = catchAsync(async (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
   const products = await Products.findAll({ where: { type: req.body.type } });
 
+  const productDatas = await Promise.all(products.map(async product => {
+    const productImages = await ProductImages.findAll({ where: { product: product.id } });
+
+    return {
+      ...product.get(),
+      images: productImages.map(i => i.image)
+    }
+  }))
+
   return res
     .status(200)
     .json({
-      message: "Get all product successfully", data: products
+      message: "Get all product successfully", data: productDatas
     });
 })
 

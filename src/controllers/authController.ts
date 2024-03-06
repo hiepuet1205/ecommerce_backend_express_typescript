@@ -7,6 +7,7 @@ import bcrypt from 'bcrypt';
 import { genneralAccessToken, genneralRefreshToken } from "../ultis/jwt";
 import { IGetUserAuthInfoRequest } from "../ultis/types";
 
+
 export const login: RequestHandler = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body
   const checkUser = await Users.findOne({ where: { email } })
@@ -15,7 +16,7 @@ export const login: RequestHandler = catchAsync(async (req: Request, res: Respon
     return next(new AppError('Email not found!', 200))
   }
 
-  const comparePassword = bcrypt.compareSync(password, checkUser.password)
+  const comparePassword = await bcrypt.compareSync(password, checkUser.password)
 
   if (!comparePassword) {
     return next(new AppError('Password incorrect!', 200))
